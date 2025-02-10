@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import image from "./assets/Framee.png"
 
 interface ParticleHoverEffectProps {
   width?: number;
