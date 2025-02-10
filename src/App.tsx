@@ -1,27 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import image from "./assets/Framee.png"
 
-interface ParticleHoverEffectProps {
-  width?: number;
-  height?: number;
-  imageUrl: string; // Image URL as a prop for flexibility
-}
-
-const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
-  width = 400,
-  height = 400,
-  imageUrl,
-}) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  let particles: {
-    x: number;
-    y: number;
-    originalX: number;
-    originalY: number;
-    vx: number;
-    vy: number;
-    color: string;
-  }[] = [];
+const ParticleHoverEffect = ({ width = 400, height = 400, imageUrl }) => {
+  const canvasRef = useRef(null);
+  let particles = [];
 
   // Configurable variables
   const particleSize = 3;
@@ -36,25 +18,20 @@ const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas actual resolution correctly
     canvas.width = width;
     canvas.height = height;
 
     const img = new Image();
-    img.crossOrigin = "anonymous"; // Fix CORS issue for external images
+    img.crossOrigin = "anonymous"; // Fix CORS issue
     img.src = imageUrl;
     img.onload = () => {
       extractParticles(img, ctx, canvas);
       animate();
     };
-  }, [width, height, imageUrl]); // Re-run when dimensions or image change
+  }, [width, height, imageUrl]); // Runs when dimensions or image change
 
-  const extractParticles = (
-    image: HTMLImageElement,
-    ctx: CanvasRenderingContext2D,
-    canvas: HTMLCanvasElement
-  ) => {
-    particles = []; // Reset particles to avoid duplication
+  const extractParticles = (image, ctx, canvas) => {
+    particles = []; // Reset particles
 
     const offscreenCanvas = document.createElement("canvas");
     const offCtx = offscreenCanvas.getContext("2d");
@@ -79,7 +56,6 @@ const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
         const alpha = data[index + 3];
 
         if (alpha > 128) {
-          // Only create particles where image is visible
           particles.push({
             x: x * scaleX,
             y: y * scaleY,
@@ -120,7 +96,7 @@ const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
     requestAnimationFrame(animate);
   };
 
-  const handleMouseMove = (event: React.MouseEvent) => {
+  const handleMouseMove = (event) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -135,8 +111,7 @@ const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
 
       if (distance < maxMouseEffectDistance) {
         const angle = Math.atan2(dy, dx);
-        const force =
-          (maxMouseEffectDistance - distance) / maxMouseEffectDistance;
+        const force = (maxMouseEffectDistance - distance) / maxMouseEffectDistance;
         particle.vx += Math.cos(angle) * force * 6;
         particle.vy += Math.sin(angle) * force * 6;
       }
