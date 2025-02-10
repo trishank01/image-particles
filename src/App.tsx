@@ -1,14 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import image from "./assets/Framee.png";
 
 interface ParticleHoverEffectProps {
   width?: number;
   height?: number;
+  imageUrl: string; // Image URL as a prop for flexibility
 }
 
 const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
   width = 400,
   height = 400,
+  imageUrl,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   let particles: {
@@ -22,7 +23,6 @@ const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
   }[] = [];
 
   // Configurable variables
-  const imageUrl = image;
   const particleSize = 3;
   const spacing = 4;
   const maxMouseEffectDistance = 80;
@@ -40,13 +40,13 @@ const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
     canvas.height = height;
 
     const img = new Image();
-    img.crossOrigin = "anonymous"; // Fix CORS issue
+    img.crossOrigin = "anonymous"; // Fix CORS issue for external images
     img.src = imageUrl;
     img.onload = () => {
       extractParticles(img, ctx, canvas);
-      animate(ctx);
+      animate();
     };
-  }, [width, height]); // Re-run when dimensions change
+  }, [width, height, imageUrl]); // Re-run when dimensions or image change
 
   const extractParticles = (
     image: HTMLImageElement,
@@ -93,9 +93,11 @@ const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
     }
   };
 
-  const animate = (ctx: CanvasRenderingContext2D) => {
+  const animate = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -114,7 +116,7 @@ const ParticleHoverEffect: React.FC<ParticleHoverEffectProps> = ({
       ctx.fillRect(particle.x, particle.y, particleSize, particleSize);
     });
 
-    requestAnimationFrame(() => animate(ctx));
+    requestAnimationFrame(animate);
   };
 
   const handleMouseMove = (event: React.MouseEvent) => {
